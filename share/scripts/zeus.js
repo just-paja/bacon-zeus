@@ -278,7 +278,7 @@ pwf.register('zeus', function()
 	{
 		pwf.comm.get('stats', null, function(ctrl)
 		{
-			return function(response) {
+			return function(err, response) {
 				ctrl.update_stats(response.data);
 
 				if (typeof next == 'function') {
@@ -295,7 +295,7 @@ pwf.register('zeus', function()
 	{
 		pwf.comm.get('markers', null, function(ctrl)
 		{
-			return function(response) {
+			return function(err, response) {
 				ctrl.update_markers(response.data);
 
 				if (typeof next == 'function') {
