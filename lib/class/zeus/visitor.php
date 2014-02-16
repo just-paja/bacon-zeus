@@ -26,8 +26,8 @@ namespace Zeus
 			}
 
 			return array(
-				"distance" => $total,
-				"users" => $users
+				"distance" => intval($total),
+				"users" => intval($users)
 			);
 		}
 
