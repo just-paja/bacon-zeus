@@ -1,0 +1,4 @@
+.htaccess
+/share/bower
+/lib/vendor
+/composer.lock
