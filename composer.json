@@ -1,0 +1,10 @@
+{
+	"name":"just-paja/pwf-project",
+	"description":"Backbone for your pwf projects",
+	"config":{
+		"vendor-dir":"lib/vendor"
+	},
+	"require":{
+		"just-paja/pwf":"*"
+	}
+}
