@@ -6,7 +6,9 @@ pwf.register('zeus', function()
 		input,
 		stats = null,
 		markers = null,
+		local_country = 'Czech republic',
 		local_addr = 'Pardubice, Czech republic',
+		local_bounds = null,
 		local_gps = null;
 
 
@@ -35,7 +37,7 @@ pwf.register('zeus', function()
 				.append(cont.menu);
 
 			cont.addClass('loading');
-			cont.inner.hide();
+			cont.inner.css('opacity', 0);
 
 			form = pwf.form.create({
 				'parent':cont.inner,
@@ -185,7 +187,7 @@ pwf.register('zeus', function()
 
 		average = pwf.jquery.div('average-distance')
 			.append(pwf.jquery.span('label').html('Průměrná ujetá vzdálenost:'))
-			.append(pwf.jquery.span('val').html(this.humanize_si(stats.distance/stats.users, 'm')));
+			.append(pwf.jquery.span('val').html(this.humanize_si(stats.users > 0 ? stats.distance/stats.users:0, 'm')));
 
 		cont.stats
 			.append(users)
@@ -228,10 +230,13 @@ pwf.register('zeus', function()
 		cont.bind('keyup', this, callback_keyup);
 
 		cont.removeClass('loading');
-		cont.inner.show();
+		cont.inner.css('opacity', 1);
 
 		google.maps.event.trigger(this.get_map(), 'resize');
-		return this.show_home_marker();
+
+		return this
+			.show_home_marker()
+			.reset_view();
 	};
 
 
@@ -248,20 +253,40 @@ pwf.register('zeus', function()
 	};
 
 
+	this.reset_view = function(next)
+	{
+		var coder = new google.maps.Geocoder();
+
+		coder.geocode({"address":local_country}, function(ctrl, next) {
+			return function(res, stat) {
+				if (stat === 'OK' && typeof res[0] !== 'undefined') {
+					ctrl.get_map().fitBounds(res[0].geometry.bounds);
+
+					if (typeof next == 'function') {
+						next();
+					}
+				}
+			};
+		}(this, next));
+
+		return this;
+	};
+
+
 	this.load_pos = function(next)
 	{
 		var coder = new google.maps.Geocoder();
 
 		coder.geocode({"address":local_addr}, function(ctrl, next) {
-				return function(res, stat) {
-					if (stat === 'OK' && typeof res[0] !== 'undefined') {
-						ctrl.use_gps(res[0]);
+			return function(res, stat) {
+				if (stat === 'OK' && typeof res[0] !== 'undefined') {
+					ctrl.use_gps(res[0]);
 
-						if (typeof next == 'function') {
-							next();
-						}
+					if (typeof next == 'function') {
+						next();
 					}
-				};
+				}
+			};
 		}(this, next));
 
 		return this;
@@ -270,6 +295,7 @@ pwf.register('zeus', function()
 
 	this.use_gps = function(res)
 	{
+		local_bounds = res.geometry.bounds;
 		local_gps = res.geometry.location;
 	};
 
