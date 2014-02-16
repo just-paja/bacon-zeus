@@ -1,0 +1,6 @@
+{
+	"debug":{
+		"frontend":true,
+		"backend":true
+	}
+}

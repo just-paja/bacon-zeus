@@ -1,0 +1,7 @@
+#!/usr/bin/php
+<?
+
+define("BASE_DIR", realpath(__DIR__.'/..'));
+define('ROOT', realpath(BASE_DIR.'/lib/vendor/just-paja/pwf'));
+
+require_once ROOT."/etc/init.d/cli.php";

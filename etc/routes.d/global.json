@@ -1,0 +1,24 @@
+[
+	["^/map/$", {
+		"layout":["layout"]
+	}, "home"],
+
+	["^/map/stats$", {
+		"modules":[
+			["zeus/stats"]
+		]
+	}, "stats"],
+
+	["^/map/markers$", {
+		"modules":[
+			["zeus/markers"]
+		]
+	}, "stats"],
+
+	["^/map/add$", {
+		"modules":[
+			["zeus/add"]
+		]
+	}, "add"]
+
+]

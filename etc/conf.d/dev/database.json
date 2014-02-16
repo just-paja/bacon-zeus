@@ -1,0 +1,17 @@
+{
+	"connect":["bacon"],
+	"default":"bacon",
+	"list":{
+		"bacon":{
+			"username":"root",
+			"password":"q23",
+			"driver":"mysqli",
+			"dbms":"mysql",
+			"database":"pwf_bacon_zeus",
+			"host":"localhost",
+			"is_yawf_home":true,
+			"lazy":"on",
+			"charset":"utf8"
+		}
+	}
+}

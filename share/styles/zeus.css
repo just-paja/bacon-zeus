@@ -1,0 +1,111 @@
+html,body {
+	width:100%;
+	height:100%;
+	position:relative;
+	background:#333;
+	color:#fff;
+	font-family:Arial;
+}
+
+.input {
+	display:none;
+}
+
+.input-typed-location,
+.input-typed-gps
+{
+	display:block;
+}
+
+.input-typed-gps .input-container .map {
+	display:block;
+	position:absolute;
+	z-index:3;
+	left:0;
+	top:0;
+	right:0;
+	bottom:0;
+}
+
+.input-named-name,
+.input-named-city_addr
+{
+	display:block;
+	position:absolute;
+	z-index:5;
+	left:30px;
+}
+
+.input-named-name {
+	top:30px;
+}
+
+.input-named-city_addr {
+	top:70px;
+}
+
+.input.invalid input {
+	border-color:#f00;
+}
+
+
+.menu {
+	position:absolute;
+	left:0;
+	top:0;
+	width:300px;
+	height:144px;
+	z-index:4;
+	background:#000;
+	border-right:1px solid rgba(0,0,0,0.25);
+	border-bottom:1px solid rgba(0,0,0,0.25);
+	opacity:.5;
+}
+
+
+.pwform label {
+	display:none;
+}
+
+.pwform input {
+	height:auto;
+	border:1px solid #000;
+	background:#fff;
+	border-radius:3px;
+	font-size:18px;
+	width:200px;
+}
+
+.stats,
+.location
+{
+	position:absolute;
+	right:0;
+	top:0;
+	width:250px;
+	background:rgba(0,0,0,0.5);
+	z-index:6;
+	padding:20px;
+	color:#fff;
+	font-size:24px;
+}
+
+.stats {
+	width:410px;
+	line-height:30px;
+}
+
+.stats .label {
+	width:300px;
+	display:inline-block;
+	color:#ccc;
+}
+
+.zeus {
+	width:100%;
+	height:100%;
+}
+
+.zeus.loading {
+	background:<pixmap(loader-zeus.gif)> center center no-repeat;
+}
