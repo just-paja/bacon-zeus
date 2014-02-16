@@ -107,5 +107,5 @@ html,body {
 }
 
 .zeus.loading {
-	background:<pixmap(loader-zeus.gif)> center center no-repeat;
+	background:url(<pixmap(loader-zeus.gif)>) center center no-repeat;
 }
