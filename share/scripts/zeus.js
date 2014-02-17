@@ -206,7 +206,9 @@ pwf.register('zeus', function()
 
 	this.humanize_si = function(val, unit)
 	{
-		var level = 0;
+		var
+			level = 0,
+			unit_prefix = '';
 
 		while (val >= 1000) {
 			val = val/1000;
@@ -214,14 +216,14 @@ pwf.register('zeus', function()
 		}
 
 		if (level == 1) {
-			unit = 'k' + unit;
+			unit_prefix = 'k';
 		}
 
-		if (level == 1) {
-			unit = 'M' + unit;
+		if (level == 2) {
+			unit_prefix = 'M';
 		}
 
-		return Math.round((val*10)/10) + '&nbsp;' + unit;
+		return Math.round((val*10)/10) + '&nbsp;' + unit_prefix + unit;
 	};
 
 
