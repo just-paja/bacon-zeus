@@ -9,6 +9,7 @@
 			$ren->content_for('scripts', 'bower/pwf-comm/lib/comm');
 			$ren->content_for('scripts', 'bower/pwf-comm/lib/mods/http');
 			$ren->content_for('scripts', 'bower/pwf-comm-form/lib/comm-form');
+			$ren->content_for('scripts', 'bower/pwf-popup/lib/popup');
 			$ren->content_for('scripts', 'bower/pwf-form/lib/form');
 			$ren->content_for('scripts', 'bower/pwf-form/lib/input');
 			$ren->content_for('scripts', 'bower/pwf-form/lib/input/default');

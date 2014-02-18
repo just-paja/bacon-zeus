@@ -41,8 +41,8 @@ namespace Zeus
 				$data[] = array(
 					'country' => $marker->country,
 					'city'    => $marker->city,
-					'gps'     => $marker->gps,
-					'count'   => $marker->total
+					'gps'     => $marker->gps->to_object(),
+					'count'   => intval($marker->total)
 				);
 			}
 

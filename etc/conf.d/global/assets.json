@@ -1,5 +1,6 @@
 {
 	"dependencies":{
-		"pwf-async-compat":"*"
+		"pwf-async-compat":"*",
+		"pwf-popup":"*"
 	}
 }

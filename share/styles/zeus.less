@@ -1,0 +1,158 @@
+html,body {
+	width:100%;
+	height:100%;
+	position:relative;
+	background:#333;
+	color:#fff;
+	font-family:Arial;
+}
+
+.input-typed-hidden {
+	display:none;
+}
+
+.input-typed-location,
+.input-typed-gps
+{
+	display:block;
+}
+
+.input-typed-gps .input-container .map {
+	display:block;
+	position:absolute;
+	z-index:3;
+	left:0;
+	top:0;
+	right:0;
+	bottom:0;
+}
+
+.pwform button {
+	background:#800080;
+	color:#fff;
+	border:1px solid #000000;
+	border-radius:4px;
+	font-size:18px;
+	font-weight:bold;
+	line-height:22px;
+	margin:0 10px 0 0;
+	padding:5px 20px;
+	cursor:pointer;
+}
+
+.pwform .form-group-typed-buttons li {
+
+	display:inline-block;
+}
+
+.input.invalid input {
+	border-color:#f00;
+}
+
+
+.pwform {
+	z-index:4;
+	background:rgba(0,0,0,0.7);
+	border:1px solid rgba(0,0,0,0.25);
+	border-radius:5px;
+
+	.form-inner {
+		padding:20px;
+	}
+}
+
+.popup {
+	position:absolute;
+}
+
+
+.pwform label {
+	display:none;
+}
+
+.pwform input {
+	height:auto;
+	border:1px solid #000;
+	background:#fff;
+	border-radius:3px;
+	font-size:24px;
+	width:300px;
+}
+
+.pwform .input {
+	padding:0;
+	margin-bottom:15px;
+
+	&:last-child {
+		margin:0;
+	}
+}
+
+.stats,
+.location
+{
+	position:absolute;
+	right:0;
+	top:0;
+	width:250px;
+	background:rgba(0,0,0,0.75);
+	z-index:6;
+	padding:20px;
+	color:#fff;
+	font-size:28px;
+}
+
+.stats {
+	width:100%;
+	line-height:30px;
+	padding:0;
+
+	.cell {
+		padding:0;
+	}
+
+	.stat-add {
+		background:#000;
+		cursor:pointer;
+
+		&:hover {
+			background:#fff;
+			color:#000;
+		}
+	}
+}
+
+.stats .label {
+	display:none;
+}
+
+.stats .stat-label {
+	display:inline-block;
+	padding:10px 30px 10px 50px;
+	line-height:32px;
+	background-position:left center;
+	background-repeat:no-repeat;
+	margin-right:30px;
+	font-weight:bold;
+
+	&.total-users { background-image:url(<pixmap(users.png)>); }
+	&.total-distance { background-image:url(<pixmap(distance.png)>); }
+	&.average-distance { background-image:url(<pixmap(average.png)>); }
+
+	&:last-child {
+		margin-right:0;
+	}
+}
+
+.zeus {
+	width:100%;
+	height:100%;
+}
+
+.zeus.loading {
+	background:url(<pixmap(loader-zeus.gif)>) center center no-repeat;
+}
+
+.overlay-bg {
+	background:rgba(0,0,0,0.15)
+}

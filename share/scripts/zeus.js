@@ -2,8 +2,9 @@ pwf.register('zeus', function()
 {
 	var
 		cont,
-		form,
 		input,
+		location,
+		popup,
 		stats = null,
 		markers = null,
 		local_country = 'Czech republic',
@@ -24,93 +25,57 @@ pwf.register('zeus', function()
 
 		if (cont.length) {
 
-			cont.menu = pwf.jquery.div('menu');
 			cont.inner = pwf.jquery.div('inner');
 			cont.loader = pwf.jquery.div('loader');
-			cont.stats = pwf.jquery.div('stats');
+			cont.stats = pwf.jquery.div('stats').create_divs(['cell']);
 
 			cont.append(cont.inner);
 
 			cont.inner
 				.append(cont.loader)
-				.append(cont.stats)
-				.append(cont.menu);
+				.append(cont.stats);
 
 			cont.addClass('loading');
 			cont.inner.css('opacity', 0);
 
-			form = pwf.form.create({
-				'parent':cont.inner,
-				'action':'add',
-				'on_before_send':callback_before_send,
-				'on_ready':callback_success,
-				'on_error':callback_error,
-				"elements":[
-					{
-						'type':'text',
-						'name':'name',
-						'placeholder':'Jméno',
-						'required':true
-					},
-					{
-						'type':'hidden',
-						'name':'country'
-					},
-					{
-						'type':'hidden',
-						'name':'city'
-					},
-					{
-						'type':'hidden',
-						'name':'gps'
-					},
-					{
-						'type':'hidden',
-						'name':'distance'
-					},
-					{
-						'type':'text',
-						'name':'city_addr',
-						'placeholder':'Město',
-						'required':true,
-						'on_change':function(input, val) {
-							var loc = input.get('form').get_input('loc');
-
-							loc.val(null).el.addr.val(val);
-							loc.update_by_addr();
-						}
-					},
-					{
-						'type':'location',
-						'name':'loc',
-						'minlength':0,
-						'on_map_ready':function(ctrl) {
-							return function(input) {
-								var check = function(ctrl) {
-									return function() {
-										if (ctrl.get_markers() !== null && ctrl.get_stats() !== null && ctrl.get_gps()) {
-											ctrl.show();
-										}
-									};
-								}(ctrl);
-
-								ctrl.load_pos(check).load_stats(check).load_markers(check);
+			location = pwf.input.create({
+				'parent':cont,
+				'type':'location',
+				'name':'loc',
+				'minlength':0,
+				'on_map_ready':function(ctrl) {
+					return function(input) {
+						var check = function(ctrl) {
+							return function() {
+								if (ctrl.get_markers() !== null && ctrl.get_stats() !== null && ctrl.get_gps()) {
+									ctrl.show();
+								}
 							};
-						}(this),
-						'on_change':function(input, val) {
-							var f = input.get('form');
+						}(ctrl);
+
+						ctrl.load_pos(check).load_stats(check).load_markers(check);
+					};
+				}(this),
+				'on_change':function(ctrl) {
+					return function(input, val) {
+						if (ctrl.get_popup() !== null) {
+							var
+								pop = ctrl.get_popup(),
+								f = pop.form;
 
 							country = f.get_input('country').val(val.country);
 							country = f.get_input('city').val(val.city);
 							country = f.get_input('gps').val(val.gps.lat + ',' + val.gps.lng);
-						}
-					}
-				]
-			});
 
-			pwf.queue.on('zeus-loaded', function(context) {
-				context.data.show();
-			}, this);
+							pop.update({'center':false});
+							pop.get_overlay().bg.animate({'opacity':0}, 150);
+							pop.get_el().animate({'left':20, 'top':70}, 150);
+
+							ctrl.add_button(pop.form);
+						}
+					};
+				}(this)
+			}).construct();
 		}
 
 		return true;
@@ -123,9 +88,28 @@ pwf.register('zeus', function()
 	};
 
 
+	this.get_popup = function()
+	{
+		return popup;
+	};
+
+
+	this.drop_popup = function()
+	{
+		popup = null;
+		return this;
+	};
+
+
+	this.get_location = function()
+	{
+		return location;
+	};
+
+
 	this.get_map = function()
 	{
-		return form.get_input('loc').el.gps.map;
+		return location.el.gps.map;
 	};
 
 
@@ -143,6 +127,16 @@ pwf.register('zeus', function()
 
 	this.update_markers = function(arg_markers)
 	{
+		if (typeof markers != 'undefined' && markers !== null) {
+			for (var i = 0; i < markers.length; i++) {
+				var mark = markers[i];
+
+				if (typeof mark.instance != 'undefined') {
+					mark.instance.setMap(null);
+				}
+			}
+		}
+
 		if (typeof arg_markers != 'undefined') {
 			markers = arg_markers;
 		}
@@ -157,7 +151,7 @@ pwf.register('zeus', function()
 			mark.instance = new google.maps.Marker({
 				'position':mark.gps,
 				'animation':google.maps.Animation.DROP,
-				'icon':'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=H|000000|ffffff',
+				'icon':'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + mark.count + '|4093FF|ffffff',
 				'map':this.get_map(),
 				'title':mark.city
 			});
@@ -169,27 +163,32 @@ pwf.register('zeus', function()
 
 	this.update_stats = function(arg_stats)
 	{
-		var users, total, average;
+		var add, users, total, average;
 
 		if (typeof arg_stats != 'undefined') {
 			stats = arg_stats;
 		}
 
-		cont.stats.html('');
+		cont.stats.cell.html('');
 
-		users = pwf.jquery.div('total-users')
+		add = pwf.jquery.div('stat-label stat-add')
+			.append(pwf.jquery.span('val').html('Další'))
+			.bind('click', this, callback_show_form);
+
+		users = pwf.jquery.div('stat-label total-users')
 			.append(pwf.jquery.span('label').html('Počet lidí:'))
 			.append(pwf.jquery.span('val').html(stats.users));
 
-		total = pwf.jquery.div('total-distance')
+		total = pwf.jquery.div('stat-label total-distance')
 			.append(pwf.jquery.span('label').html('Celková ujetá vzdálenost:'))
 			.append(pwf.jquery.span('val').html(this.humanize_si(stats.distance, 'm')));
 
-		average = pwf.jquery.div('average-distance')
+		average = pwf.jquery.div('stat-label average-distance')
 			.append(pwf.jquery.span('label').html('Průměrná ujetá vzdálenost:'))
 			.append(pwf.jquery.span('val').html(this.humanize_si(stats.users > 0 ? stats.distance/stats.users:0, 'm')));
 
-		cont.stats
+		cont.stats.cell
+			.append(add)
 			.append(users)
 			.append(total)
 			.append(average);
@@ -217,13 +216,15 @@ pwf.register('zeus', function()
 
 		if (level == 1) {
 			unit_prefix = 'k';
-		}
-
-		if (level == 2) {
+		} else if (level == 2) {
 			unit_prefix = 'M';
+		} else if (level == 3) {
+			unit_prefix = 'G';
+		} else if (level == 4) {
+			unit_prefix = 'T';
 		}
 
-		return Math.round((val*10)/10) + '&nbsp;' + unit_prefix + unit;
+		return (Math.round(val*100)/100) + '&nbsp;' + unit_prefix + unit;
 	};
 
 
@@ -259,6 +260,8 @@ pwf.register('zeus', function()
 	{
 		var coder = new google.maps.Geocoder();
 
+		v('reset view!');
+
 		coder.geocode({"address":local_country}, function(ctrl, next) {
 			return function(res, stat) {
 				if (stat === 'OK' && typeof res[0] !== 'undefined') {
@@ -267,6 +270,9 @@ pwf.register('zeus', function()
 					if (typeof next == 'function') {
 						next();
 					}
+				} else {
+					v([res, stat]);
+					throw new Error('Failed to geocode!');
 				}
 			};
 		}(this, next));
@@ -292,6 +298,141 @@ pwf.register('zeus', function()
 		}(this, next));
 
 		return this;
+	};
+
+
+	this.show_form = function()
+	{
+		if (pwf.jquery.find('.popup').length == 0) {
+			var pop = pwf.popup.create({
+				'on_hide':function(ctrl) {
+					return function() {
+						ctrl.reset_view().drop_popup();
+						ctrl.get_location().val(null);
+					};
+				}(this)
+			}).construct();
+
+			popup = pop;
+
+			pop.form = pwf.form.create({
+				'parent':pop.get_el(),
+				'action':'add',
+				'on_before_send':callback_before_send,
+				'on_ready':function(ctrl) {
+					return function(form, response) {
+						ctrl.update_from_response(response);
+					};
+				}(this),
+				'on_error':callback_error,
+				"elements":[
+					{
+						'type':'text',
+						'name':'name',
+						'placeholder':'Zadej jméno',
+						'required':true
+					},
+					{
+						'type':'hidden',
+						'name':'country'
+					},
+					{
+						'type':'hidden',
+						'name':'city'
+					},
+					{
+						'type':'hidden',
+						'name':'gps'
+					},
+					{
+						'type':'hidden',
+						'name':'distance'
+					},
+					{
+						'type':'text',
+						'name':'city_addr',
+						'placeholder':'Město',
+						'required':true,
+						'on_change':function(ctrl) {
+							return function(input, val) {
+								var loc = ctrl.get_location();
+
+								loc.val(null).el.addr.val(val);
+								loc.update_by_addr();
+							};
+						}(this)
+					},
+					//~ {
+						//~ 'element':'button',
+						//~ 'type':'button',
+						//~ 'label':'Uložit'
+					//~ }
+				]
+			});
+
+			pop.form.el().find('input').attr('autocomplete', 'off');
+
+			pop.show(function(err, pop) {
+				pop.form.get_input('name').el.focus();
+			});
+		}
+	};
+
+
+	var get_button = function(form)
+	{
+		return form.el().find('.button-named-check');
+	};
+
+
+	this.add_button = function(form)
+	{
+		var button = get_button(form);
+
+		if (!button.length) {
+			var
+				button,
+				width;
+
+			form.create_input({
+				'element':'container',
+				'type':'buttons',
+				'elements':[
+				{
+					'name':'cancel',
+					'element':'button',
+					'label':'Zrušit',
+					'type':'button',
+					'click':function(ctrl) {
+						return function() {
+							ctrl.get_popup().close();
+						};
+					}(this)
+				},
+				{
+					'name':'check',
+					'element':'button',
+					'label':'Uložit',
+					'type':'submit'
+				},
+			]});
+
+			width = button.width();
+
+			button.width(0).animate({'width':width}, 500);
+		}
+	};
+
+
+	var remove_button = function(form)
+	{
+		var button = get_button(form);
+
+		if (button.length) {
+			button.stop(true).animate({'width':0}, 500, function() {
+				pwf.jquery(this).remove();
+			});
+		}
 	};
 
 
@@ -407,9 +548,15 @@ pwf.register('zeus', function()
 	};
 
 
-	var callback_success = function(context)
+	this.update_from_response = function(response)
 	{
-		v('form send and ready');
+		this.update_markers(response.data.markers).update_stats(response.data.stats);
+
+		if (this.get_popup() !== null) {
+			this.get_popup().close();
+		}
+
+		return this;
 	};
 
 
@@ -421,6 +568,12 @@ pwf.register('zeus', function()
 	var callback_error = function(response, err)
 	{
 		v(err);
+	};
+
+
+	var callback_show_form = function(e)
+	{
+		pwf.callbacks.cancel(e).data.show_form();
 	};
 
 
