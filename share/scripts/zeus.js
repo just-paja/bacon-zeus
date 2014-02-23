@@ -26,14 +26,11 @@ pwf.register('zeus', function()
 		if (cont.length) {
 
 			cont.inner = pwf.jquery.div('inner');
-			cont.loader = pwf.jquery.div('loader');
-			cont.stats = pwf.jquery.div('stats').create_divs(['cell']);
+			cont.stats = pwf.jquery.div('stats').create_divs(['cell', 'loader']);
 
 			cont.append(cont.inner);
 
-			cont.inner
-				.append(cont.loader)
-				.append(cont.stats);
+			cont.inner.append(cont.stats);
 
 			cont.addClass('loading');
 			cont.inner.css('opacity', 0);
@@ -259,13 +256,12 @@ pwf.register('zeus', function()
 	this.reset_view = function(next)
 	{
 		var coder = new google.maps.Geocoder();
-
-		v('reset view!');
+		this.loader_show();
 
 		coder.geocode({"address":local_country}, function(ctrl, next) {
 			return function(res, stat) {
 				if (stat === 'OK' && typeof res[0] !== 'undefined') {
-					ctrl.get_map().fitBounds(res[0].geometry.bounds);
+					ctrl.loader_hide().get_map().fitBounds(res[0].geometry.bounds);
 
 					if (typeof next == 'function') {
 						next();
@@ -321,7 +317,7 @@ pwf.register('zeus', function()
 				'on_before_send':callback_before_send,
 				'on_ready':function(ctrl) {
 					return function(form, response) {
-						ctrl.update_from_response(response);
+						ctrl.update_from_response(response).loader_hide();
 					};
 				}(this),
 				'on_error':callback_error,
@@ -560,8 +556,24 @@ pwf.register('zeus', function()
 	};
 
 
-	var callback_before_send = function()
+	this.loader_show = function()
 	{
+		cont.stats.loader.stop(true).fadeIn(250);
+		return this;
+	};
+
+
+	this.loader_hide = function()
+	{
+		cont.stats.loader.stop(true).fadeOut(250);
+		return this;
+	};
+
+
+	var callback_before_send = function(form)
+	{
+		form.el().fadeOut(500);
+		pwf.zeus.loader_show();
 	};
 
 

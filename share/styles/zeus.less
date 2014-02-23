@@ -15,6 +15,12 @@ html,body {
 .input-typed-gps
 {
 	display:block;
+
+	.input-typed-text,
+	.input-typed-url
+	{
+		display:none;
+	}
 }
 
 .input-typed-gps .input-container .map {
@@ -155,4 +161,16 @@ html,body {
 
 .overlay-bg {
 	background:rgba(0,0,0,0.15)
+}
+
+
+.zeus .loader {
+	position:absolute;
+	z-index:8000;
+	right:10px;
+	top:10px;
+	width:32px;
+	height:32px;
+	background:url(<pixmap(loader-zeus-tiny.gif)>) center center no-repeat;
+	display:none;
 }
