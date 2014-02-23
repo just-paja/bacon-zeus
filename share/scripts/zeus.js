@@ -196,7 +196,7 @@ pwf.register('zeus', function()
 
 	this.get_form = function()
 	{
-		return form;
+		return this.get_popup().form;
 	};
 
 
@@ -357,12 +357,7 @@ pwf.register('zeus', function()
 								loc.update_by_addr();
 							};
 						}(this)
-					},
-					//~ {
-						//~ 'element':'button',
-						//~ 'type':'button',
-						//~ 'label':'Uložit'
-					//~ }
+					}
 				]
 			});
 
@@ -409,7 +404,13 @@ pwf.register('zeus', function()
 					'name':'check',
 					'element':'button',
 					'label':'Uložit',
-					'type':'submit'
+					'type':'submit',
+					'click':function(ctrl) {
+						return function(e) {
+							pwf.callbacks.cancel(e);
+							ctrl.submit();
+						};
+					}(this)
 				},
 			]});
 
@@ -475,14 +476,22 @@ pwf.register('zeus', function()
 
 	this.submit = function(next)
 	{
-		var loc = form.get_input('loc').val();
+		var loc = this.get_location().val();
 
 		this.query_distance(loc, function(ctrl, next) {
-			return function(error, loc, distance) {
-				var dist = distance.rows[0].elements[0].distance.value;
+			return function(err, loc, distance) {
+				if (!err) {
+					var dist = distance.rows[0].elements[0].distance.value;
 
-				ctrl.get_form().get_input('distance').val(dist);
-				ctrl.get_form().send();
+					ctrl.get_form().get_input('distance').val(dist);
+					ctrl.get_form().send();
+
+					if (typeof next == 'function') {
+						next();
+					}
+				} else {
+					v(err);
+				}
 			};
 		}(this, next));
 
